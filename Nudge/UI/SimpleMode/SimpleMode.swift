@@ -32,7 +32,15 @@ struct SimpleMode: View {
             
             Text(appState.deviceSupportedByOSVersion ? getMainHeader().localized(desiredLanguage: getDesiredLanguage(locale: appState.locale)) : getMainHeaderUnsupported().localized(desiredLanguage: getDesiredLanguage(locale: appState.locale)))
                 .font(.title)
-            
+
+            if UserInterfaceVariables.simpleModeShowRequiredOSVersion {
+                requiredOSVersionView
+            }
+
+            if UserInterfaceVariables.simpleModeShowRequiredDate {
+                requiredDateView
+            }
+
             remainingTimeView
 
             if UserInterfaceVariables.showDeferralCount {
@@ -84,6 +92,45 @@ struct SimpleMode: View {
                 .foregroundColor(infoTextColor)
                 .font(.title2)
         }
+    }
+
+    private var requiredOSVersionView: some View {
+        HStack {
+            Text("Required OS Version:".localized(desiredLanguage: getDesiredLanguage(locale: appState.locale)))
+            Text(String(appState.requiredMinimumOSVersion))
+                .foregroundColor(infoTextColor)
+        }
+    }
+
+    private var requiredDateView: some View {
+        HStack {
+            Text("Required Date:".localized(desiredLanguage: getDesiredLanguage(locale: appState.locale)))
+            Text(requiredDateText)
+                .foregroundColor(infoTextColor)
+        }
+    }
+
+    private var requiredDateText: String {
+        let localeIdentifier = getDesiredLanguage(locale: appState.locale)
+        let locale = Locale(identifier: localeIdentifier)
+        let format = UserInterfaceVariables.requiredInstallationDisplayFormat
+        let dateText = DateManager().coerceDateToString(
+            date: requiredInstallationDate,
+            formatterString: format,
+            locale: locale
+        )
+
+        if UserInterfaceVariables.simpleModeShowRequiredTime && !formatIncludesTime(format) {
+            let timeText = DateManager().coerceTimeToString(date: requiredInstallationDate, locale: locale)
+            return "\(dateText) \(timeText)"
+        }
+
+        return dateText
+    }
+
+    private func formatIncludesTime(_ format: String) -> Bool {
+        let timeCharacters = CharacterSet(charactersIn: "HhKkmsaS")
+        return format.rangeOfCharacter(from: timeCharacters) != nil
     }
     
     private var bottomButtons: some View {
