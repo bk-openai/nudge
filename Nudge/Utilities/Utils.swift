@@ -574,6 +574,14 @@ struct DateManager {
         }
     }
 
+    func coerceTimeToString(date: Date, locale: Locale? = nil) -> String {
+        let timeFormatter = DateFormatter()
+        timeFormatter.dateStyle = .none
+        timeFormatter.timeStyle = .short
+        timeFormatter.locale = locale ?? Locale.current
+        return timeFormatter.string(from: date)
+    }
+
     func coerceStringToDate(dateString: String) -> Date {
         if dateString.contains("Z") {
             dateFormatterISO8601.date(from: dateString) ?? getCurrentDate()
